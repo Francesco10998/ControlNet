@@ -21,4 +21,3 @@ yapf==0.32.0
 prettytable==3.6.0
 safetensors==0.2.7
 basicsr==1.4.2
-torchtext==0.10.0
