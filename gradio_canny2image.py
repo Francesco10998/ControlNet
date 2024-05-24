@@ -7,6 +7,7 @@ import gradio as gr
 import numpy as np
 import torch
 import random
+import numpy as np
 
 from pytorch_lightning import seed_everything
 from annotator.util import resize_image, HWC3
@@ -38,7 +39,12 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         detected_map_counterfactual = HWC3(detected_map_counterfactual)
 
         ########### obtain the canny edge of the attribute only ##############
-        detected_map = detected_map_counterfactual - detected_map_original
+        detected_map = cv2.absdiff(detected_map_counterfactual, detected_map_original)
+        
+        ########## Optional: pulizia dell'immagine dei bordi degli occhiali ##########
+        kernel = np.ones((3, 3), np.uint8)
+        detected_map = cv2.morphologyEx(edges_glasses, cv2.MORPH_CLOSE, kernel)
+        detected_map = cv2.morphologyEx(edges_glasses, cv2.MORPH_OPEN, kernel)
         
 
         control = torch.from_numpy(detected_map.copy()).float().cuda() / 255.0
