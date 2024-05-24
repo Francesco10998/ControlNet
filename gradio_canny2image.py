@@ -43,8 +43,8 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         
         ########## Optional: pulizia dell'immagine dei bordi degli occhiali ##########
         kernel = np.ones((3, 3), np.uint8)
-        detected_map = cv2.morphologyEx(edges_glasses, cv2.MORPH_CLOSE, kernel)
-        detected_map = cv2.morphologyEx(edges_glasses, cv2.MORPH_OPEN, kernel)
+        detected_map = cv2.morphologyEx(detected_map, cv2.MORPH_CLOSE, kernel)
+        detected_map = cv2.morphologyEx(detected_map, cv2.MORPH_OPEN, kernel)
         
 
         control = torch.from_numpy(detected_map.copy()).float().cuda() / 255.0
@@ -87,7 +87,9 @@ with block:
         gr.Markdown("## Control Stable Diffusion with Canny Edge Maps")
     with gr.Row():
         with gr.Column():
+            gr.Markdown("### Insert original image")
             input_image = gr.Image(source='upload', type="numpy")
+            gr.Markdown("### Insert counterfactual image")
             counterfactual_image = gr.Image(source='upload', type="numpy")
             prompt = gr.Textbox(label="Prompt")
             run_button = gr.Button(label="Run")
