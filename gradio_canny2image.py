@@ -33,7 +33,8 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         detected_map_origianl = HWC3(detected_map)
 
         ########### compute canny edge also of the counterfactual explanation ##############
-        detected_map_counterfactual = apply_canny(counterfactual_img, low_threshold, high_threshold)
+        c_img = resize_image(HWC3(counterfactual_image), image_resolution)
+        detected_map_counterfactual = apply_canny(c_img, low_threshold, high_threshold)
         detected_map_counterfactual = HWC3(detected_map)
 
         ########### obtain the canny edge of the attribute only ##############
