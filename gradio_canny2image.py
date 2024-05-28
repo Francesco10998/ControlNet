@@ -73,7 +73,8 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
 
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
         
-        ten = torch.Tensor(input_image).permute(2,1,0).cuda()
+        input_image_64 = resize_image(HWC3(input_image), 64)
+        ten = torch.Tensor(input_image_64).permute(2,1,0).cuda()
         alpha_channel = torch.ones((1, ten.shape[1], ten.shape[2])).cuda()
 
         # Concatenare il canale alpha all'immagine RGB
