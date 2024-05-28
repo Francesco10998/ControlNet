@@ -43,17 +43,17 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         detected_map_counterfactual = apply_canny(c_img, low_threshold, high_threshold)
         detected_map_counterfactual = HWC3(detected_map_counterfactual)
 
+        """
         ########### obtain the canny edge of the attribute only ##############
         detected_map = cv2.absdiff(detected_map_counterfactual, detected_map_original)
 
-        """
         ########## Optional: pulizia dell'immagine dei bordi degli occhiali ##########
         kernel = np.ones((3, 3), np.uint8)
         detected_map = cv2.morphologyEx(detected_map, cv2.MORPH_CLOSE, kernel)
         detected_map = cv2.morphologyEx(detected_map, cv2.MORPH_OPEN, kernel)
         """
 
-        control = torch.from_numpy(detected_map.copy()).float().cuda() / 255.0
+        control = torch.from_numpy(detected_map_countefactual.copy()).float().cuda() / 255.0
         control = torch.stack([control for _ in range(num_samples)], dim=0)
         control = einops.rearrange(control, 'b h w c -> b c h w').clone()
 
