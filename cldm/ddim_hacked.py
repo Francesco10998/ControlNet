@@ -233,6 +233,7 @@ class DDIMSampler(object):
     @torch.no_grad()
     def encode(self, x0, c, t_enc, use_original_steps=False, return_intermediates=None,
                unconditional_guidance_scale=1.0, unconditional_conditioning=None, callback=None):
+        self.make_schedule(ddim_num_steps=t_enc, ddim_eta=0, verbose=False)
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         num_reference_steps = timesteps.shape[0]
 
@@ -252,7 +253,7 @@ class DDIMSampler(object):
         for i in tqdm(range(num_steps), desc='Encoding Image'):
             t = torch.full((x0.shape[0],), timesteps[i], device=self.model.device, dtype=torch.long)
             if unconditional_guidance_scale == 1.:
-                noise_pred = self.model.apply_model(x_next, t, c)
+                noise_pred = self.model.apply_model(torch.unsqueeze(x_next,0), t, c)
             else:
                 assert unconditional_conditioning is not None
                 e_t_uncond, noise_pred = torch.chunk(
