@@ -30,8 +30,13 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         img = resize_image(HWC3(input_image), image_resolution)
         H, W, C = img.shape
 
+        """
         detected_map_original = apply_canny(img, low_threshold, high_threshold)
         detected_map_original = HWC3(detected_map_original)
+        """
+        ########### encode the original image ################
+        x_next, noise = ddim_sampler.encode(input_image, t_enc=20)
+        
 
         ########### compute canny edge also of the counterfactual explanation ##############
         c_img = resize_image(HWC3(counterfactual_image), image_resolution)
@@ -40,12 +45,13 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
 
         ########### obtain the canny edge of the attribute only ##############
         detected_map = cv2.absdiff(detected_map_counterfactual, detected_map_original)
-        
+
+        """
         ########## Optional: pulizia dell'immagine dei bordi degli occhiali ##########
         kernel = np.ones((3, 3), np.uint8)
         detected_map = cv2.morphologyEx(detected_map, cv2.MORPH_CLOSE, kernel)
         detected_map = cv2.morphologyEx(detected_map, cv2.MORPH_OPEN, kernel)
-        
+        """
 
         control = torch.from_numpy(detected_map.copy()).float().cuda() / 255.0
         control = torch.stack([control for _ in range(num_samples)], dim=0)
@@ -67,10 +73,14 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
 
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
+                                                     shape, cond, verbose=False, eta=eta, x_T=noise,
+                                                     unconditional_guidance_scale=scale,
+                                                     unconditional_conditioning=un_cond)
+        """samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
                                                      shape, cond, verbose=False, eta=eta,
                                                      unconditional_guidance_scale=scale,
                                                      unconditional_conditioning=un_cond)
-
+        """
         if config.save_memory:
             model.low_vram_shift(is_diffusing=False)
 
