@@ -73,12 +73,12 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
 
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
         
-        ten = torch.Tensor(input_image).permute(2,1,0)
-        alpha_channel = torch.ones((1, ten.shape[1], ten.shape[2]))
+        ten = torch.Tensor(input_image).permute(2,1,0).cuda()
+        alpha_channel = torch.ones((1, ten.shape[1], ten.shape[2])).cuda()
 
         # Concatenare il canale alpha all'immagine RGB
         rgba_tensor = torch.cat((ten, alpha_channel), dim=0)
-        x_next, noise = ddim_sampler.encode(rgba_tensor, cond, t_enc=20)
+        x_next, noise = ddim_sampler.encode(rgba_tensor.cuda(), cond, t_enc=20)
 
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
                                                      shape, cond, verbose=False, eta=eta, x_T=noise,
