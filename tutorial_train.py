@@ -8,7 +8,7 @@ from cldm.model import create_model, load_state_dict
 
 
 # Configs
-resume_path = './models/control_sd15_ini.ckpt'
+resume_path = '../drive/Mydrive/CLIPdiffusion/celeba_hq.ckpt'
 batch_size = 4
 logger_freq = 300
 learning_rate = 1e-5
