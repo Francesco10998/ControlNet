@@ -93,8 +93,8 @@ def sample(prompt, start_step=0, start_latents=None,
 #input_image = load_image('https://images.pexels.com/photos/8306128/pexels-photo-8306128.jpeg', size=(512, 512))
 #input_image_prompt = "Photograph of a puppy on the grass"
 # Encode with VAE
-with torch.no_grad(): latent = pipe.vae.encode(tfms.functional.to_tensor(input_image).unsqueeze(0).to(device)*2-1)
-l = 0.18215 * latent.latent_dist.sample()
+#with torch.no_grad(): latent = pipe.vae.encode(tfms.functional.to_tensor(input_image).unsqueeze(0).to(device)*2-1)
+#l = 0.18215 * latent.latent_dist.sample()
 
 ## Inversion
 @torch.no_grad()
@@ -219,7 +219,7 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         l = 0.18215 * latent.latent_dist.sample()
 
         inverted_latents = invert(l, img, num_inference_steps=50)
-        
+        start_step = 20
         """input_image_64 = resize_image(HWC3(input_image), 64)
         ten = torch.Tensor(input_image_64).permute(2,1,0).cuda()
         alpha_channel = torch.ones((1, ten.shape[1], ten.shape[2])).cuda()
@@ -229,7 +229,7 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         x_next, noise = ddim_sampler.encode(rgba_tensor.cuda(), cond, t_enc=20)"""
 
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
-                                                     shape, cond, verbose=False, eta=eta, x_T=inverted_latents,
+                                                     shape, cond, verbose=False, eta=eta, x_T=inverted_latents[-(start_step+1)][None],
                                                      unconditional_guidance_scale=scale,
                                                      unconditional_conditioning=un_cond)
         """samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
