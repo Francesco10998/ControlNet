@@ -152,7 +152,7 @@ def invert(start_latents, prompt, guidance_scale=3.5, num_inference_steps=80,
 
     return torch.cat(intermediate_latents)
 
-inverted_latents = invert(l, input_image_prompt, num_inference_steps=50)
+#inverted_latents = invert(l, input_image_prompt, num_inference_steps=50)
 #inverted_latents.shape
 # Decode the final inverted latents
 """
