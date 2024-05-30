@@ -214,11 +214,12 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
 
         # encoding of the image using ddim inversion
+        input_image_prompt = "Photograph of a person"
         # Encode with VAE
         with torch.no_grad(): latent = pipe.vae.encode(tfms.functional.to_tensor(input_image).unsqueeze(0).to(device)*2-1)
         l = 0.18215 * latent.latent_dist.sample()
 
-        inverted_latents = invert(l, img, num_inference_steps=50)
+        inverted_latents = invert(l, input_image_prompt, num_inference_steps=50)
         start_step = 20
         """input_image_64 = resize_image(HWC3(input_image), 64)
         ten = torch.Tensor(input_image_64).permute(2,1,0).cuda()
@@ -244,7 +245,7 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         x_samples = (einops.rearrange(x_samples, 'b c h w -> b h w c') * 127.5 + 127.5).cpu().numpy().clip(0, 255).astype(np.uint8)
 
         results = [x_samples[i] for i in range(num_samples)]
-    return [255 - detected_map] + results
+    return [255 - detected_map_counterfactual] + results
 
 
 block = gr.Blocks().queue()
