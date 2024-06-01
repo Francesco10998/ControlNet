@@ -221,6 +221,16 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
 
         inverted_latents = invert(l, input_image_prompt, num_inference_steps=50)
         start_step = 20
+
+        """
+        #sampling with stable diffusion
+        samples=sample(
+           input_image_prompt,
+           start_latents=inverted_latents[-(start_step + 1)][None],
+           start_step=start_step,
+           num_inference_steps=50,
+        )[0]
+        """
         """input_image_64 = resize_image(HWC3(input_image), 64)
         ten = torch.Tensor(input_image_64).permute(2,1,0).cuda()
         alpha_channel = torch.ones((1, ten.shape[1], ten.shape[2])).cuda()
