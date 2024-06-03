@@ -219,8 +219,8 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
         with torch.no_grad(): latent = pipe.vae.encode(tfms.functional.to_tensor(input_image).unsqueeze(0).to(device)*2-1)
         l = 0.18215 * latent.latent_dist.sample()
 
-        inverted_latents = invert(l, input_image_prompt, num_inference_steps=50)
-        start_step = 20
+        #inverted_latents = invert(l, input_image_prompt, num_inference_steps=50)
+        #start_step = 20
 
         """
         #sampling with stable diffusion
@@ -231,23 +231,25 @@ def process(input_image, counterfactual_image, prompt, a_prompt, n_prompt, num_s
            num_inference_steps=50,
         )[0]
         """
-        """input_image_64 = resize_image(HWC3(input_image), 64)
-        ten = torch.Tensor(input_image_64).permute(2,1,0).cuda()
+        input_image_32 = resize_image(HWC3(input_image), 64)
+        ten = torch.Tensor(input_image_32).permute(2,0,1).cuda()
         alpha_channel = torch.ones((1, ten.shape[1], ten.shape[2])).cuda()
 
         # Concatenare il canale alpha all'immagine RGB
         rgba_tensor = torch.cat((ten, alpha_channel), dim=0)
+        """
         x_next, noise = ddim_sampler.encode(rgba_tensor.cuda(), cond, t_enc=20)"""
 
-        samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
+        """samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
                                                      shape, cond, verbose=False, eta=eta, x_T=inverted_latents[-(start_step+1)][None],
                                                      unconditional_guidance_scale=scale,
-                                                     unconditional_conditioning=un_cond)
-        """samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
+                                                     unconditional_conditioning=un_cond,image =rgba_tensor)
+        """
+        samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
                                                      shape, cond, verbose=False, eta=eta,
                                                      unconditional_guidance_scale=scale,
-                                                     unconditional_conditioning=un_cond)
-        """
+                                                     unconditional_conditioning=un_cond, image=rgba_tensor.unsqueeze(0))
+
         if config.save_memory:
             model.low_vram_shift(is_diffusing=False)
 
